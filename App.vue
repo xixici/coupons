@@ -15,10 +15,10 @@ export default {
 	},
 	globalData: {
 		api: {
-			home: 'https://728da630-a10b-4780-b26e-30aa5aec7ee7.bspapp.com/http/api/home',
-			openid: 'https://728da630-a10b-4780-b26e-30aa5aec7ee7.bspapp.com/http/api/openid',
+			home: 'https://83f39ab3-e69c-48b0-9317-ffcf4be15cb7.bspapp.com/http/api/home',
+			openid: 'https://83f39ab3-e69c-48b0-9317-ffcf4be15cb7.bspapp.com/http/api/openid',
 		},
-		subscribe: 'https://728da630-a10b-4780-b26e-30aa5aec7ee7.bspapp.com/http/subscribe',
+		subscribe: 'https://83f39ab3-e69c-48b0-9317-ffcf4be15cb7.bspapp.com/http/subscribe',
 		openid: '',
 		userInfo: '',
 	},

@@ -1,8 +1,8 @@
 {
-    "name" : "外卖专享优惠",
-    "appid" : "",
-    "description" : "",
-    "versionName" : "1.0.0",
+    "name" : "多彩猫狗",
+    "appid" : "__UNI__30E3237",
+    "description" : "方便用户领取各种优惠",
+    "versionName" : "1.0.2",
     "versionCode" : "100",
     "transformPx" : false,
     "app-plus" : {
@@ -42,7 +42,7 @@
     },
     "quickapp" : {},
     "mp-weixin" : {
-        "appid" : "",
+        "appid" : "wx70938a1f64f9498c",
         "setting" : {
             "urlCheck" : true,
             "minified" : true

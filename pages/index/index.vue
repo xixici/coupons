@@ -59,70 +59,70 @@ export default {
 			    if (openid) {
 					console.log('获取缓存openid');
 			        console.log(openid);
-					uni.showModal({
-					    title: '订阅提示',
-					    content: '点击一下订阅，避免错过一个亿!',
-						cancelText: '不差钱',
-						cancelColor: '#BEBEBE',
-						confirmText: '订阅',
-						confirmColor: '#007AFF',
-					    success: function (res) {
-					        if (res.confirm) {
-					            console.log('订阅开始')
-								// 活动开始提醒 模板
-					            const lessonTmplId = 'hLV31-w38lq0yq8p6GEQUtBU7brtMrCFmaCCyxbU4xI';
-								const data = {
-					            		data: '外卖领券提醒, 快来领优惠券啦！',
-					            		templateId: lessonTmplId,
-					            		openid: openid,
-					            		  };
-					            console.log(data)
-								// uni.showLoading({
-								// 	title: '订阅中...',
-								// });
-								// setTimeout(function () {
-								//     uni.hideLoading();
-								// }, 2000);
-								// 调用微信 API 申请发送订阅消息
-					            wx.requestSubscribeMessage({
-					            	// 传入订阅消息的模板id，模板 id 可在小程序管理后台申请
-					            	tmplIds: [lessonTmplId],
-					            	success(res) {
-					            	  // 申请订阅成功
-					            	  if (res.errMsg === 'requestSubscribeMessage:ok') {
-					            		uni.request({
-					            		  url: getApp().globalData.subscribe,
-					            		  data: data,
-					            		  success: (res) => {
-					            			  wx.showToast({
-					            				title: '订阅完成',
-					            				image: '../../static/error.png',
-					            				duration: 2000,
-					            			  });
-					            			},
-					            		  fail(res) {
-					            			console.log(res)
-					            			wx.showToast({
-					            			  title: '订阅失败',
-					            			  icon: 'error',
-					            			  duration: 2000,
-					            			});
-					            		  }
-					            		});
-					            	  }
-					            	},
+					// uni.showModal({
+					//     title: '订阅提示',
+					//     content: '点击一下订阅，避免错过一个亿!',
+					// 	cancelText: '不差钱',
+					// 	cancelColor: '#BEBEBE',
+					// 	confirmText: '订阅',
+					// 	confirmColor: '#007AFF',
+					//     success: function (res) {
+					//         if (res.confirm) {
+					//             console.log('订阅开始')
+					// 			// 活动开始提醒 模板
+					//             const lessonTmplId = 'sYfbtk6lo7YuH8LSSxlpVpS-9xPEjN3GgRfgdhrBkQQ';
+					// 			const data = {
+					//             		data: '外卖领券提醒, 快来领优惠券啦！',
+					//             		templateId: lessonTmplId,
+					//             		openid: openid,
+					//             		  };
+					//             console.log(data)
+					// 			// uni.showLoading({
+					// 			// 	title: '订阅中...',
+					// 			// });
+					// 			// setTimeout(function () {
+					// 			//     uni.hideLoading();
+					// 			// }, 2000);
+					// 			// 调用微信 API 申请发送订阅消息
+					//             wx.requestSubscribeMessage({
+					//             	// 传入订阅消息的模板id，模板 id 可在小程序管理后台申请
+					//             	tmplIds: [lessonTmplId],
+					//             	success(res) {
+					//             	  // 申请订阅成功
+					//             	  if (res.errMsg === 'requestSubscribeMessage:ok') {
+					//             		uni.request({
+					//             		  url: getApp().globalData.subscribe,
+					//             		  data: data,
+					//             		  success: (res) => {
+					//             			  wx.showToast({
+					//             				title: '订阅完成',
+					//             				image: '../../static/error.png',
+					//             				duration: 2000,
+					//             			  });
+					//             			},
+					//             		  fail(res) {
+					//             			console.log(res)
+					//             			wx.showToast({
+					//             			  title: '订阅失败',
+					//             			  icon: 'error',
+					//             			  duration: 2000,
+					//             			});
+					//             		  }
+					//             		});
+					//             	  }
+					//             	},
 					            	
-					            });
-					        } else if (res.cancel) {
-					            console.log('用户点击取消');
-								wx.showToast({
-								  title: '订阅失败',
-								  image: '../../static/error.png',
-								  duration: 2000,
-								});
-					        }
-					    }
-					});
+					//             });
+					//         } else if (res.cancel) {
+					//             console.log('用户点击取消');
+					// 			wx.showToast({
+					// 			  title: '订阅失败',
+					// 			  image: '../../static/error.png',
+					// 			  duration: 2000,
+					// 			});
+					//         }
+					//     }
+					// });
 			    }else{
 					console.log('本地未获取到openid');
 					uni.login({
@@ -145,70 +145,70 @@ export default {
 											key:"openid",
 											data: openid
 										});
-										uni.showModal({
-										    title: '订阅提示',
-										    content: '点击一下订阅，避免错过一个亿!',
-											cancelText: '不差钱',
-											cancelColor: '#BEBEBE',
-											confirmText: '订阅',
-											confirmColor: '#007AFF',
-										    success: function (res) {
-										        if (res.confirm) {
-										            console.log('订阅开始')
-													// 活动开始提醒 模板
-										            const lessonTmplId = 'hLV31-w38lq0yq8p6GEQUtBU7brtMrCFmaCCyxbU4xI';
-													const data = {
-										            		data: '外卖领券提醒, 快来领优惠券啦！',
-										            		templateId: lessonTmplId,
-										            		openid: openid,
-										            		  };
-										            console.log(data)
-										            uni.showLoading({
-										              title: '订阅中...',
-										            });
-													setTimeout(function () {
-													    uni.hideLoading();
-													}, 5000);
-										            // 调用微信 API 申请发送订阅消息
-										            wx.requestSubscribeMessage({
-										            	// 传入订阅消息的模板id，模板 id 可在小程序管理后台申请
-										            	tmplIds: [lessonTmplId],
-										            	success(res) {
-										            	  // 申请订阅成功
-										            	  if (res.errMsg === 'requestSubscribeMessage:ok') {
-										            		uni.request({
-										            		  url: getApp().globalData.subscribe,
-										            		  data: data,
-										            		  success: (res) => {
-										            			  wx.showToast({
-										            				title: '订阅完成',
-										            				icon: 'success',
-										            				duration: 2000,
-										            			  });
-										            			},
-										            		  fail(res) {
-										            			console.log(res)
-										            			wx.showToast({
-										            			  title: '订阅失败',
-										            			  image: '../../static/error.png',
-										            			  duration: 2000,
-										            			});
-										            		  }
-										            		});
-										            	  }
-										            	},
+										// uni.showModal({
+										//     title: '订阅提示',
+										//     content: '点击一下订阅，避免错过一个亿!',
+										// 	cancelText: '不差钱',
+										// 	cancelColor: '#BEBEBE',
+										// 	confirmText: '订阅',
+										// 	confirmColor: '#007AFF',
+										//     success: function (res) {
+										//         if (res.confirm) {
+										//             console.log('订阅开始')
+										// 			// 活动开始提醒 模板
+										//             const lessonTmplId = 'hLV31-w38lq0yq8p6GEQUtBU7brtMrCFmaCCyxbU4xI';
+										// 			const data = {
+										//             		data: '外卖领券提醒, 快来领优惠券啦！',
+										//             		templateId: lessonTmplId,
+										//             		openid: openid,
+										//             		  };
+										//             console.log(data)
+										//             uni.showLoading({
+										//               title: '订阅中...',
+										//             });
+										// 			setTimeout(function () {
+										// 			    uni.hideLoading();
+										// 			}, 5000);
+										//             // 调用微信 API 申请发送订阅消息
+										//             wx.requestSubscribeMessage({
+										//             	// 传入订阅消息的模板id，模板 id 可在小程序管理后台申请
+										//             	tmplIds: [lessonTmplId],
+										//             	success(res) {
+										//             	  // 申请订阅成功
+										//             	  if (res.errMsg === 'requestSubscribeMessage:ok') {
+										//             		uni.request({
+										//             		  url: getApp().globalData.subscribe,
+										//             		  data: data,
+										//             		  success: (res) => {
+										//             			  wx.showToast({
+										//             				title: '订阅完成',
+										//             				icon: 'success',
+										//             				duration: 2000,
+										//             			  });
+										//             			},
+										//             		  fail(res) {
+										//             			console.log(res)
+										//             			wx.showToast({
+										//             			  title: '订阅失败',
+										//             			  image: '../../static/error.png',
+										//             			  duration: 2000,
+										//             			});
+										//             		  }
+										//             		});
+										//             	  }
+										//             	},
 										            	
-										            });
-										        } else if (res.cancel) {
-										            console.log('用户点击取消');
-													wx.showToast({
-													  title: '订阅失败',
-													  image: '../../static/error.png',
-													  duration: 2000,
-													});
-										        }
-										    }
-										});
+										//             });
+										//         } else if (res.cancel) {
+										//             console.log('用户点击取消');
+										// 			wx.showToast({
+										// 			  title: '订阅失败',
+										// 			  image: '../../static/error.png',
+										// 			  duration: 2000,
+										// 			});
+										//         }
+										//     }
+										// });
 								    }
 								});	
 							} else {
