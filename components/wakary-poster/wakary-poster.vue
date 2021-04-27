@@ -4,11 +4,10 @@
 			<canvas canvas-id="mini_poster" :style="{ width: canvasW + 'px', height: canvasH + 'px' }"></canvas>
 		</view>
 		<view style="height: 106rpx;"></view>
-		<view class="footer-left">
-			<button open-type="getUserInfo" lang="zh_CN" @getuserinfo="onGotUserInfo" type="warn">生成我的</button>
-		</view>
-		<view class="footer-right">
-			<button type="primary" @tap="toSaveImage">保存名片</button>
+		<view class="footer">
+			<view style="height: 106rpx; align-items: center; background-color: #333333;">
+				<button style="background: transparent; height: 106rpx; line-height: 106rpx;" @tap="toSaveImage">保存名片</button>
+			</view>
 		</view>
 	</view>
 </template>
@@ -17,26 +16,30 @@
 	export default {
 		data() {
 			return {
-				mpWxQr: "https://github.com/xixici/xixici.github.io/blob/master/uploads/wechat-qcode.gif",
+				mpWxQr: "https://as.datianshi.com/media/mp/2/wx/qr.PNG",
 				canvasW: 0,
 				canvasH: 0,
-				nickname: "日历大师",
-				avatar: "https://github.com/xixici/xixici.github.io/blob/master/uploads/wechat-qcode.gif",
-				location: "上海",
+				invest_areas: [{id: 1, name: "儿童教育"}, {id: 1, name: "少儿编程"}, {id: 1, name: "生物智能"}, {id: 1, name: "万物相连"}, {id: 1, name: "大数据"}],
+				nickname: "热豆Wakary",
+				avatar: "https://as.datianshi.com/media/9/tmp_f9fdf9ee13548fa97fb1e7c8d0be7e30ee02ed1b533d39e7.jpg",
+				company: "热豆科技",
+				phone: "17610998099",
+				email: "redoume@163.com",
+				location: "北京",
 				finished: false
 			}
 		},
 		computed: {
-			// showInvestAreas() {
-			// 	if (this.invest_areas) {
-			// 		const names = []
-			// 		this.invest_areas.forEach(item => {
-			// 			names.push(item.name)
-			// 		})
-			// 		return names.join(" ")
-			// 	}
-			// 	return '未设置'
-			// }
+			showInvestAreas() {
+				if (this.invest_areas) {
+					const names = []
+					this.invest_areas.forEach(item => {
+						names.push(item.name)
+					})
+					return names.join(" ")
+				}
+				return '未设置'
+			}
 		},
 		onLoad() {
 			this.canvasW = uni.getSystemInfoSync().windowWidth
@@ -161,7 +164,7 @@
 				const oPadding = uni.upx2px(34)
 				const iPadding = uni.upx2px(40)
 				const textW = w - textH + oPadding - iPadding
-				// this.drawTextInOneLine(ctx, this.showInvestAreas, textH, vp, textW)
+				this.drawTextInOneLine(ctx, this.showInvestAreas, textH, vp, textW)
 
 				vp = vp + 28
 				// #ifdef APP-PLUS
@@ -299,18 +302,10 @@
 </script>
 
 <style>
-	.footer-left {
+	.footer {
 		position: fixed;
-		width: 50%;
+		width: 100%;
 		left: 0;
-		bottom: 0;
-		box-shadow: none;
-		border-top: 1px solid #E2E2E2;
-	}
-	.footer-right {
-		position: fixed;
-		width: 50%;
-		right: 0;
 		bottom: 0;
 		box-shadow: none;
 		border-top: 1px solid #E2E2E2;
