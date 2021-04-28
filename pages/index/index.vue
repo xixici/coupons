@@ -26,24 +26,18 @@
 				finished: false
 			}
 		},
-		computed: {
-			// showInvestAreas() {
-			// 	if (this.invest_areas) {
-			// 		const names = []
-			// 		this.invest_areas.forEach(item => {
-			// 			names.push(item.name)
-			// 		})
-			// 		return names.join(" ")
-			// 	}
-			// 	return '未设置'
-			// }
-		},
 		onLoad() {
+			this.userInfo = getApp().globalData.userInfo
 			this.canvasW = uni.getSystemInfoSync().windowWidth
 			this.canvasH = this.calculateCanvasHeight()
 			this.toDrawCanvas()
 		},
 		methods: {
+			/*登录 */
+			onGotUserInfo(e) {
+				this.userInfo = e.detail.userInfo
+				uni.setStorageSync('userInfo', e.detail.userInfo);
+			},
 			toSaveImage() {
 				if (!this.finished) {
 					uni.showToast({
@@ -81,13 +75,12 @@
 			},
 			async toDrawCanvas() {
 				const padding = uni.upx2px(34)
-				const cardHeight = uni.upx2px(380)
+				const cardHeight = uni.upx2px(170)
 				const cw = this.canvasW - 2 * padding
 
 				let ctx = uni.createCanvasContext('mini_poster', this)
 
 				// 透明背景
-				// ctx.setFillStyle('rgba(255, 255, 255, 0)')
 				ctx.setFillStyle('#F3F4F5')
 				ctx.fillRect(0, 0, this.canvasW, this.canvasH)
 				// draw card round rect
@@ -97,7 +90,8 @@
 				this.drawCard(ctx, padding, padding, cw, cardHeight)
 				// draw avatar
 				const av = uni.upx2px(128)
-				const hi = await this.downloadImage(this.avatar)
+				console.log(this.userInfo)
+				const hi = await this.downloadImage(this.userInfo.avatarUrl)
 				if (hi.tempFilePath) {
 					const x = this.canvasW - padding - uni.upx2px(40) - av
 					const y = padding + uni.upx2px(40)
@@ -119,36 +113,14 @@
 				this.finished = true
 			},
 			async drawCard(ctx, x, y, w, h) {
-				// draw company
 				let vp = y + uni.upx2px(45)
 				const hp = x + uni.upx2px(52)
 				ctx.setTextBaseline('top')
 				const fz30 = uni.upx2px(30)
-				ctx.fillStyle = '#F5A623'
 				ctx.setFontSize(fz30)
-				ctx.fillText(this.company, hp, vp)
 
-				// draw nickname
-				vp = vp + 30
-				const fz50 = uni.upx2px(50)
-				ctx.setFillStyle('#333333')
-				ctx.setFontSize(fz50)
-				ctx.fillText(this.nickname, hp, vp)
-
-				vp = vp + 42
 				const iconW = uni.upx2px(30)
 				const textH = hp + iconW + 6
-				// #ifdef APP-PLUS
-				ctx.drawImage('../../static/position.png', hp, vp + 3, iconW, iconW)
-				// #endif
-				// #ifndef APP-PLUS
-				ctx.drawImage('../../static/position.png', hp, vp, iconW, iconW)
-				// #endif
-				ctx.setFillStyle('#333333')
-				ctx.setFontSize(fz30)
-				ctx.fillText(this.location, textH, vp)
-
-				vp = vp + 28
 				// #ifdef APP-PLUS
 				ctx.drawImage('../../static/Mouse-Pointer.png', hp, vp + 3, iconW, iconW)
 				// #endif
@@ -156,23 +128,17 @@
 				ctx.drawImage('../../static/Mouse-Pointer.png', hp, vp, iconW, iconW)
 				// #endif
 				ctx.setFillStyle('#333333')
-				ctx.setFontSize(fz30)
-				// ctx.fillText(this.showInvestAreas, textH, vp)
-				const oPadding = uni.upx2px(34)
-				const iPadding = uni.upx2px(40)
-				const textW = w - textH + oPadding - iPadding
-				// this.drawTextInOneLine(ctx, this.showInvestAreas, textH, vp, textW)
+				ctx.fillText(this.userInfo.nickName, textH, vp)
 
-				vp = vp + 28
+				vp += 30
 				// #ifdef APP-PLUS
-				ctx.drawImage('../../static/phone.png', hp, vp + 3, iconW, iconW)
+				ctx.drawImage('../../static/position.png', hp, vp + 3, iconW, iconW)
 				// #endif
 				// #ifndef APP-PLUS
-				ctx.drawImage('../../static/phone.png', hp, vp, iconW, iconW)
+				ctx.drawImage('../../static/position.png', hp, vp, iconW, iconW)
 				// #endif
-				ctx.setFillStyle('#333333')
-				ctx.setFontSize(fz30)
-				ctx.fillText(this.phone ? this.phone : '', textH, vp)
+				ctx.fillText(this.userInfo.country + this.userInfo.province + this.userInfo.city, textH, vp)
+
 			},
 			async drawHelloInfo(ctx, x, y, w) {
 				let vp = y + 12
@@ -181,32 +147,15 @@
 				const fz30 = uni.upx2px(30)
 				ctx.setFillStyle('#333333')
 				ctx.setFontSize(fz30)
-				ctx.fillText('您好，', hp, vp)
-				const text = "我是来自 " + this.company + ' 的投资人' + this.nickname
-				const lines = this.drawTextInLines(ctx, text, hp, vp, w, 26)
-				vp += 26 * lines + 26
-				ctx.fillText('这是我的名片，请惠存。', hp, vp)
-				vp += 26
-				ctx.fillText('谢谢', hp, vp)
-
-				vp += 26
-				vp += 40
-				ctx.setFillStyle('#F37231')
-				ctx.fillRect(hp, vp, 20, 3)
-				vp += 7
-				ctx.setFillStyle('#333333')
-				const fz28 = uni.upx2px(28)
-				ctx.setFontSize(fz28)
 				ctx.fillText('长按识别二维码', hp, vp)
-				vp += 20
-				const ttt = '在大天使中查看我的更多信息'
-				ctx.fillText(ttt, hp, vp)
+				vp += 26
+				ctx.fillText('添加微信与我沟通', hp, vp)
 			},
 			calculateCanvasHeight() {
 				// 400 is card height
 				const ctx = uni.createCanvasContext('test_poster')
 				const padding = uni.upx2px(34)
-				const text = "我是来自 " + this.company + ' 的投资人' + this.nickname
+				const text = "我是来自 " + ' 的投资人' + this.nickname
 				const rows = this.drawTextInLines(ctx, text, padding, 0, this.canvasW - 2 * padding, 26)
 				const cardH = uni.upx2px(380)
 				const h = padding * 2 + cardH + padding + 12 + 26 * 3 + rows * 26
@@ -307,6 +256,7 @@
 		box-shadow: none;
 		border-top: 1px solid #E2E2E2;
 	}
+
 	.footer-right {
 		position: fixed;
 		width: 50%;
