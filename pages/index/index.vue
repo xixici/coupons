@@ -32,6 +32,7 @@
 			}
 		},
 		onLoad() {
+			this.uni.getWeather()
 			this.userInfo = getApp().globalData.userInfo
 			this.lunar = this.getLunar()
 			this.canvasW = uni.getSystemInfoSync().windowWidth
@@ -103,9 +104,17 @@
 				const textH = hp + iconW + 6
 				const vp = uni.upx2px(45)
 
+				const fz30 = uni.upx2px(100)
+				ctx.setFontSize(fz30)
+				ctx.setTextBaseline('middle')
+				ctx.setFillStyle('#333333')
+
 				const dateY = padding
 				this.drawRoundRect(ctx, padding, dateY, halfCw, cardHeight, r, 2)
-				ctx.fillText(this.month + '/' + this.day, textH, vp)
+
+				const dateText = this.month + '/' + this.day
+				const dateWidth = ctx.measureText(dateText).width
+				ctx.fillText(this.month + '/' + this.day, padding + (halfCw - dateWidth) / 2, cardHeight / 2 + padding)
 
 				this.drawRoundRect(ctx, padding + halfCw + padding, dateY, halfCw, cardHeight, r, 2)
 
@@ -287,9 +296,23 @@
 				var lunar = calendar.solar2lunar(this.year, this.month, this.day);
 				console.log(lunar)
 				return lunar.gzYear + '年 ' + lunar.IMonthCn + lunar.IDayCn + ' ' + lunar.ncWeek
-			}
-
-
+			},
+			uni.getWeather({
+				type: ''
+				wgs84 ",
+				geocode: true, //必写项
+				success：（ res） => {
+					if (this.userInfo.city) {
+						uni.request({
+							url: 'http://apis.juhe.cn/simpleWeather/query?city=%E8%8B%8F%E5%B7%9E&key=',
+							data: {},
+							success: (res) => {
+								console.log(res)
+							}
+						})
+					}
+				}
+			}),
 		}
 	}
 </script>
