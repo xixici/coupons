@@ -17,17 +17,20 @@
 	export default {
 		data() {
 			return {
-				mpWxQr: "https://github.com/xixici/xixici.github.io/blob/master/uploads/wechat-qcode.gif",
 				canvasW: 0,
 				canvasH: 0,
 				nickname: "日历大师",
 				avatar: "https://github.com/xixici/xixici.github.io/blob/master/uploads/wechat-qcode.gif",
 				location: "上海",
+				year: 2021,
+				month: 1,
+				day: 1,
 				finished: false
 			}
 		},
 		onLoad() {
 			this.userInfo = getApp().globalData.userInfo
+			this.getDateFunction()
 			this.canvasW = uni.getSystemInfoSync().windowWidth
 			this.canvasH = this.calculateCanvasHeight()
 			this.toDrawCanvas()
@@ -74,9 +77,15 @@
 				})
 			},
 			async toDrawCanvas() {
+				if (this.userInfo.avatarUrl) {
+					this.avatar = this.userInfo.avatarUrl
+					this.nickname = this.userInfo.nickName
+					this.location = this.userInfo.country + ' - ' + this.userInfo.province + ' - ' + this.userInfo.city
+				}
 				const padding = uni.upx2px(34)
 				const cardHeight = uni.upx2px(170)
 				const cw = this.canvasW - 2 * padding
+				const halfCw = (this.canvasW - 3 * padding) / 2
 
 				let ctx = uni.createCanvasContext('mini_poster', this)
 
@@ -85,13 +94,22 @@
 				ctx.fillRect(0, 0, this.canvasW, this.canvasH)
 				// draw card round rect
 				const r = uni.upx2px(12)
-				this.drawRoundRect(ctx, padding, padding, cw, cardHeight, r, 2)
+
+
+				const dateY = padding
+				this.drawRoundRect(ctx, padding, dateY, halfCw, cardHeight, r, 2)
+					
+				this.drawRoundRect(ctx, padding + halfCw +padding, dateY , halfCw, cardHeight, r, 2)
+
 				// draw card content
-				this.drawCard(ctx, padding, padding, cw, cardHeight)
+				const cardY = cardHeight + padding + padding
+				this.drawRoundRectWithBorder(ctx, padding, cardY, cw, cardHeight, r, 2)
+				this.drawCard(ctx, padding, cardY, cw, cardHeight)
 				// draw avatar
+				console.log(this.year, this.month, this.day)
 				const av = uni.upx2px(128)
 				console.log(this.userInfo)
-				const hi = await this.downloadImage(this.userInfo.avatarUrl)
+				const hi = await this.downloadImage(this.avatar)
 				if (hi.tempFilePath) {
 					const x = this.canvasW - padding - uni.upx2px(40) - av
 					const y = padding + uni.upx2px(40)
@@ -100,15 +118,15 @@
 				// draw hello info
 				this.drawHelloInfo(ctx, padding, padding + cardHeight + padding, cw)
 				// draw qr code
-				if (this.mpWxQr) {
-					const hello = await this.downloadImage(this.mpWxQr)
-					const padding = uni.upx2px(34)
-					const av = uni.upx2px(180)
-					const totalH = this.calculateCanvasHeight()
-					if (hello.tempFilePath) {
-						ctx.drawImage(hello.tempFilePath, this.canvasW - padding - av, totalH - padding - av, av, av)
-					}
-				}
+				// if (this.mpWxQr) {
+				// 	const hello = await this.downloadImage(this.mpWxQr)
+				// 	const padding = uni.upx2px(34)
+				// 	const av = uni.upx2px(180)
+				// 	const totalH = this.calculateCanvasHeight()
+				// 	if (hello.tempFilePath) {
+				// 		ctx.drawImage(hello.tempFilePath, this.canvasW - padding - av, totalH - padding - av, av, av)
+				// 	}
+				// }
 				ctx.draw()
 				this.finished = true
 			},
@@ -128,7 +146,7 @@
 				ctx.drawImage('../../static/Mouse-Pointer.png', hp, vp, iconW, iconW)
 				// #endif
 				ctx.setFillStyle('#333333')
-				ctx.fillText(this.userInfo.nickName, textH, vp)
+				ctx.fillText(this.nickname, textH, vp)
 
 				vp += 30
 				// #ifdef APP-PLUS
@@ -137,7 +155,7 @@
 				// #ifndef APP-PLUS
 				ctx.drawImage('../../static/position.png', hp, vp, iconW, iconW)
 				// #endif
-				ctx.fillText(this.userInfo.country + this.userInfo.province + this.userInfo.city, textH, vp)
+				ctx.fillText(this.location, textH, vp)
 
 			},
 			async drawHelloInfo(ctx, x, y, w) {
@@ -149,7 +167,7 @@
 				ctx.setFontSize(fz30)
 				ctx.fillText('长按识别二维码', hp, vp)
 				vp += 26
-				ctx.fillText('添加微信与我沟通', hp, vp)
+				ctx.fillText('制作我的专属名片吧', hp, vp)
 			},
 			calculateCanvasHeight() {
 				// 400 is card height
@@ -178,6 +196,16 @@
 				ctx.fill()
 			},
 			drawRoundRect(ctx, x, y, w, h, r, lineWidth) {
+				ctx.save()
+				this._drawRoundRect(ctx, x, y, w, h, r)
+				ctx.clip()
+				// draw left border
+				// ctx.fillStyle = this.company ? '#F37231' : '#333333'
+				// const bWidth = uni.upx2px(12)
+				// ctx.fillRect(x, y, bWidth, h)
+				ctx.restore()
+			},
+			drawRoundRectWithBorder(ctx, x, y, w, h, r, lineWidth) {
 				ctx.save()
 				this._drawRoundRect(ctx, x, y, w, h, r)
 				ctx.clip()
@@ -242,6 +270,12 @@
 						}
 					})
 				})
+			},
+			getDateFunction: function() {
+				var date = new Date()
+				this.year = date.getFullYear()
+				this.month = date.getMonth() + 1
+				this.day = date.getDate();
 			}
 		}
 	}
