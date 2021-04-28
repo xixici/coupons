@@ -14,6 +14,9 @@
 </template>
 
 <script>
+	import {
+		calendar
+	} from '../../sdk/calendar.js';
 	export default {
 		data() {
 			return {
@@ -30,7 +33,7 @@
 		},
 		onLoad() {
 			this.userInfo = getApp().globalData.userInfo
-			this.getDateFunction()
+			this.lunar = this.getLunar()
 			this.canvasW = uni.getSystemInfoSync().windowWidth
 			this.canvasH = this.calculateCanvasHeight()
 			this.toDrawCanvas()
@@ -82,6 +85,7 @@
 					this.nickname = this.userInfo.nickName
 					this.location = this.userInfo.country + ' - ' + this.userInfo.province + ' - ' + this.userInfo.city
 				}
+				console.log(this.lunar)
 				const padding = uni.upx2px(34)
 				const cardHeight = uni.upx2px(170)
 				const cw = this.canvasW - 2 * padding
@@ -94,12 +98,16 @@
 				ctx.fillRect(0, 0, this.canvasW, this.canvasH)
 				// draw card round rect
 				const r = uni.upx2px(12)
-
+				const hp = uni.upx2px(52)
+				const iconW = uni.upx2px(30)
+				const textH = hp + iconW + 6
+				const vp = uni.upx2px(45)
 
 				const dateY = padding
 				this.drawRoundRect(ctx, padding, dateY, halfCw, cardHeight, r, 2)
-					
-				this.drawRoundRect(ctx, padding + halfCw +padding, dateY , halfCw, cardHeight, r, 2)
+				ctx.fillText(this.month + '/' + this.day, textH, vp)
+
+				this.drawRoundRect(ctx, padding + halfCw + padding, dateY, halfCw, cardHeight, r, 2)
 
 				// draw card content
 				const cardY = cardHeight + padding + padding
@@ -271,12 +279,17 @@
 					})
 				})
 			},
-			getDateFunction: function() {
+			getLunar() {
 				var date = new Date()
 				this.year = date.getFullYear()
 				this.month = date.getMonth() + 1
 				this.day = date.getDate();
+				var lunar = calendar.solar2lunar(this.year, this.month, this.day);
+				console.log(lunar)
+				return lunar.gzYear + '年 ' + lunar.IMonthCn + lunar.IDayCn + ' ' + lunar.ncWeek
 			}
+
+
 		}
 	}
 </script>
