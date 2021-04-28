@@ -32,7 +32,7 @@
 			}
 		},
 		onLoad() {
-			this.uni.getWeather()
+			this.getWeather()
 			this.userInfo = getApp().globalData.userInfo
 			this.lunar = this.getLunar()
 			this.canvasW = uni.getSystemInfoSync().windowWidth
@@ -297,22 +297,30 @@
 				console.log(lunar)
 				return lunar.gzYear + '年 ' + lunar.IMonthCn + lunar.IDayCn + ' ' + lunar.ncWeek
 			},
-			uni.getWeather({
-				type: ''
-				wgs84 ",
-				geocode: true, //必写项
-				success：（ res） => {
-					if (this.userInfo.city) {
-						uni.request({
-							url: 'http://apis.juhe.cn/simpleWeather/query?city=%E8%8B%8F%E5%B7%9E&key=',
-							data: {},
-							success: (res) => {
-								console.log(res)
-							}
-						})
+			getWeather() {
+				uni.getLocation({
+					type: 'gcj02',
+					geocode: true, //必写项
+					success: (data) => {
+						if (data) {
+							this.lat = data.latitude
+							this.lon = data.longitude
+							uni.request({
+								url: 'http://api.openweathermap.org/data/2.5/weather?lat=' + this.lat +
+									'&lon=' + this.lon + '&appid=2253ad037b671940f70d2467be16ded2'+'&lang=zh_cn',
+								data: {},
+								success: (res) => {
+									this.weather = res.data
+									console.log(this.weather)
+								},
+								fail: (res) => {
+									console.log(res.errMsg)
+								}
+							})
+						}
 					}
-				}
-			}),
+				})
+			}
 		}
 	}
 </script>
