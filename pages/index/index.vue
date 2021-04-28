@@ -32,7 +32,7 @@
 			}
 		},
 		onLoad() {
-			this.getWeather()
+			this.weather = this.getWeather()
 			this.userInfo = getApp().globalData.userInfo
 			this.lunar = this.getLunar()
 			this.canvasW = uni.getSystemInfoSync().windowWidth
@@ -44,6 +44,34 @@
 			onGotUserInfo(e) {
 				this.userInfo = e.detail.userInfo
 				uni.setStorageSync('userInfo', e.detail.userInfo);
+			},
+
+			async getWeather() {
+				uni.getLocation({
+					type: 'gcj02',
+					geocode: true, //必写项
+					success: (data) => {
+						if (data) {
+							this.lat = data.latitude
+							this.lon = data.longitude
+							uni.request({
+								url: 'http://api.openweathermap.org/data/2.5/weather?lat=' + this.lat +
+									'&lon=' + this.lon + '&appid=2253ad037b671940f70d2467be16ded2' +
+									'&lang=zh_cn' + '&units=metric',
+								data: {},
+								success: (res) => {
+									this.weather = res.data
+									console.log(this.weather)
+									console.log(this.weather.main)
+									return res.data
+								},
+								fail: (res) => {
+									console.log(res.errMsg)
+								}
+							})
+						}
+					}
+				})
 			},
 			toSaveImage() {
 				if (!this.finished) {
@@ -115,8 +143,11 @@
 				const dateText = this.month + '/' + this.day
 				const dateWidth = ctx.measureText(dateText).width
 				ctx.fillText(this.month + '/' + this.day, padding + (halfCw - dateWidth) / 2, cardHeight / 2 + padding)
+				// console.log(this.weather)
+				// const weatherText = this.weather.main.temp + '℃' + this.weather.weather[0].description
 
 				this.drawRoundRect(ctx, padding + halfCw + padding, dateY, halfCw, cardHeight, r, 2)
+				ctx.fillText("17.99℃", padding + halfCw + padding, cardHeight / 2 + padding)
 
 				// draw card content
 				const cardY = cardHeight + padding + padding
@@ -127,13 +158,13 @@
 				const av = uni.upx2px(128)
 				console.log(this.userInfo)
 				const hi = await this.downloadImage(this.avatar)
-				if (hi.tempFilePath) {
-					const x = this.canvasW - padding - uni.upx2px(40) - av
-					const y = padding + uni.upx2px(40)
-					this.drawRoundRectAvatar(ctx, x, y, av, av, r, hi.tempFilePath)
-				}
+				// if (hi.tempFilePath) {
+				// 	const x = this.canvasW - padding - uni.upx2px(40) - av
+				// 	const y = padding + uni.upx2px(40)
+				// 	this.drawRoundRectAvatar(ctx, x, y, av, av, r, hi.tempFilePath)
+				// }
 				// draw hello info
-				this.drawHelloInfo(ctx, padding, padding + cardHeight + padding, cw)
+				this.drawHelloInfo(ctx, padding, this.canvasH, cw)
 				// draw qr code
 				// if (this.mpWxQr) {
 				// 	const hello = await this.downloadImage(this.mpWxQr)
@@ -176,7 +207,7 @@
 
 			},
 			async drawHelloInfo(ctx, x, y, w) {
-				let vp = y + 12
+				let vp = y - 56
 				const hp = x
 				ctx.setTextBaseline('top')
 				const fz30 = uni.upx2px(30)
@@ -296,30 +327,6 @@
 				var lunar = calendar.solar2lunar(this.year, this.month, this.day);
 				console.log(lunar)
 				return lunar.gzYear + '年 ' + lunar.IMonthCn + lunar.IDayCn + ' ' + lunar.ncWeek
-			},
-			getWeather() {
-				uni.getLocation({
-					type: 'gcj02',
-					geocode: true, //必写项
-					success: (data) => {
-						if (data) {
-							this.lat = data.latitude
-							this.lon = data.longitude
-							uni.request({
-								url: 'http://api.openweathermap.org/data/2.5/weather?lat=' + this.lat +
-									'&lon=' + this.lon + '&appid=2253ad037b671940f70d2467be16ded2'+'&lang=zh_cn',
-								data: {},
-								success: (res) => {
-									this.weather = res.data
-									console.log(this.weather)
-								},
-								fail: (res) => {
-									console.log(res.errMsg)
-								}
-							})
-						}
-					}
-				})
 			}
 		}
 	}
