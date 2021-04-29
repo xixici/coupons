@@ -5,7 +5,7 @@
 		</view>
 		<view style="height: 106rpx;"></view>
 		<view class="footer-left">
-			<button open-type="getUserInfo" lang="zh_CN" @getuserinfo="onGotUserInfo" type="warn">生成我的</button>
+			<button @tap="goLogin" type="warn">生成我的</button>
 		</view>
 		<view class="footer-right">
 			<button type="primary" @tap="toSaveImage">保存名片</button>
@@ -25,9 +25,6 @@
 				nickname: "日历大师",
 				avatar: "https://github.com/xixici/xixici.github.io/blob/master/uploads/wechat-qcode.gif",
 				location: "上海",
-				year: 2021,
-				month: 1,
-				day: 1,
 				finished: false
 			}
 		},
@@ -41,9 +38,28 @@
 		},
 		methods: {
 			/*登录 */
-			onGotUserInfo(e) {
-				this.userInfo = e.detail.userInfo
-				uni.setStorageSync('userInfo', e.detail.userInfo);
+			goLogin() {
+				uni.login({
+					provider: 'weixin',
+					success(login) {
+						console.log(login);
+					}
+				})
+				uni.getUserProfile({
+					desc: '显示用户名片信息',
+					lang: 'zh_CN',
+					success(user) {
+						console.log("user.userInfo", user.userInfo)
+						let self = this;
+						console.log("self", self)
+						console.log("this", this)
+
+						self.avatar = user.userInfo.avatarUrl
+						self.nickname = user.userInfo.nickName
+						self.location = user.userInfo.country + ' - ' + user.userInfo.province + ' - ' + user
+							.userInfo.city
+					}
+				})
 			},
 			toSaveImage() {
 				if (!this.finished) {
@@ -81,6 +97,7 @@
 				})
 			},
 			async toDrawCanvas() {
+				console.log(111, this)
 				if (this.userInfo.avatarUrl) {
 					this.avatar = this.userInfo.avatarUrl
 					this.nickname = this.userInfo.nickName
@@ -128,20 +145,21 @@
 				// draw song content
 				const songY = cardHeight + padding + padding + lunarHeight + padding
 				this.drawRoundRectWithBorder(ctx, padding, songY, cw, cardHeight, r, 2, '#993366')
-				this.drawCard(ctx, padding, songY, cw, cardHeight)
-				
+				this.drawSong(ctx, padding, songY, cw, cardHeight)
+
 				// draw card content
 				const cardY = this.canvasH - cardHeight - cardHeight
 				this.drawRoundRectWithBorder(ctx, padding, cardY, cw, cardHeight, r, 2, '#663399')
 				this.drawCard(ctx, padding, cardY, cw, cardHeight)
-				
+
 				// draw hello info
 				this.drawHelloInfo(ctx, padding, this.canvasH, cw)
 				// draw avatar
 				const av = uni.upx2px(128)
 				const hi = await this.downloadImage(this.avatar)
 				if (hi.tempFilePath) {
-					this.drawRoundRectAvatar(ctx, cw - padding -padding, cardY + padding, av, av, r, hi.tempFilePath)
+					this.drawRoundRectAvatar(ctx, cw - padding - padding - padding, cardY + padding, av, av, r, hi
+						.tempFilePath)
 				}
 				// draw qr code
 				// if (this.mpWxQr) {
@@ -190,7 +208,10 @@
 				const fz30 = uni.upx2px(30)
 				ctx.setFontSize(fz30)
 				const textH = hp + fz30
-				ctx.fillText(this.lunar, textH, vp)
+				const song = "他明白 他明白 我给不起 于是转身向山里走去"
+				ctx.fillText(song, textH, vp)
+				const author = "山海 - 草东没有派对"
+				ctx.fillText(author, textH, vp + fz30 + fz30)
 			},
 			async drawLunar(ctx, x, y, w, h) {
 				let vp = y + uni.upx2px(20)
