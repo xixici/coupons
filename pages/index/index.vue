@@ -133,6 +133,7 @@
 				const vp = uni.upx2px(45)
 
 				const fz30 = uni.upx2px(100)
+				const fz200 = uni.upx2px(200)
 				ctx.setFontSize(fz30)
 				ctx.setTextBaseline('middle')
 				ctx.setFillStyle('#333333')
@@ -145,9 +146,11 @@
 				ctx.fillText(this.month + '/' + this.day, padding + (halfCw - dateWidth) / 2, cardHeight / 2 + padding)
 				// console.log(this.weather)
 				// const weatherText = this.weather.main.temp + '℃' + this.weather.weather[0].description
-
+				// 'http://openweathermap.org/img/wn/10d@2x.png'
+				
 				this.drawRoundRect(ctx, padding + halfCw + padding, dateY, halfCw, cardHeight, r, 2)
 				ctx.fillText("17.99℃", padding + halfCw + padding, cardHeight / 2 + padding)
+				ctx.drawImage('../../static/weather/10d@2x.png', halfCw + padding, padding, fz200, fz200)
 
 				// draw card content
 				const cardY = cardHeight + padding + padding
