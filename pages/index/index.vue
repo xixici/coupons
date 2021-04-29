@@ -39,6 +39,7 @@
 		methods: {
 			/*登录 */
 			goLogin() {
+				let self = this;
 				uni.login({
 					provider: 'weixin',
 					success(login) {
@@ -49,15 +50,11 @@
 					desc: '显示用户名片信息',
 					lang: 'zh_CN',
 					success(user) {
-						console.log("user.userInfo", user.userInfo)
-						let self = this;
-						console.log("self", self)
-						console.log("this", this)
-
 						self.avatar = user.userInfo.avatarUrl
 						self.nickname = user.userInfo.nickName
 						self.location = user.userInfo.country + ' - ' + user.userInfo.province + ' - ' + user
 							.userInfo.city
+						self.toDrawCanvas()
 					}
 				})
 			},
@@ -128,16 +125,15 @@
 				ctx.setFillStyle('#333333')
 				ctx.setTextBaseline('middle')
 
-				ctx.setFontSize(fz100)
-				this.drawDate(ctx, padding, dateY, halfCw, cardHeight, r)
-				// console.log(this.weather)
-				// const weatherText = this.weather.main.temp + '℃' + this.weather.weather[0].description
-				// 'http://openweathermap.org/img/wn/10d@2x.png'
-
+				// draw lunar content
 				ctx.setFontSize(fz50)
 				this.drawWeather(ctx, padding, dateY, halfCw, cardHeight, r, fz200)
 
-				// draw lunar content
+				// draw date content
+				ctx.setFontSize(fz100)
+				this.drawDate(ctx, padding, dateY, halfCw, cardHeight, r)
+
+				// draw weather content
 				const lunarY = cardHeight + padding + padding
 				this.drawRoundRectWithBorder(ctx, padding, lunarY, cw, lunarHeight, r, 2, '#336699')
 				this.drawLunar(ctx, padding, lunarY, cw, lunarHeight)
@@ -262,10 +258,6 @@
 				ctx.save()
 				this._drawRoundRect(ctx, x, y, w, h, r)
 				ctx.clip()
-				// draw left border
-				// ctx.fillStyle = this.company ? '#F37231' : '#333333'
-				// const bWidth = uni.upx2px(12)
-				// ctx.fillRect(x, y, bWidth, h)
 				ctx.restore()
 			},
 			drawRoundRectWithBorder(ctx, x, y, w, h, r, lineWidth, color) {
@@ -352,21 +344,30 @@
 
 			},
 			async drawWeather(ctx, padding, dateY, halfCw, cardHeight, r, fz200) {
-				await this.getWeather()
-				this.drawRoundRect(ctx, padding + halfCw + padding, dateY, halfCw, cardHeight, r, 2)
-				console.log(this.weather)
-				ctx.drawImage('../../static/weather/' + this.weather.weather[0].icon + '@2x.png', halfCw + padding,
-					padding, fz200, fz200)
 
-				const fz30 = uni.upx2px(30)
-				ctx.setFontSize(fz30)
-				ctx.fillText(this.weather.main.temp + "℃", padding + padding + halfCw + fz200, cardHeight / 2)
-				ctx.fillText(this.weather.weather[0].description, padding + padding + halfCw + fz200, cardHeight / 2 +
-					padding + padding)
+				console.log(222222, this.weather)
+				this.drawRoundRect(ctx, padding + halfCw + padding, dateY, halfCw, cardHeight, r, 2)
+
 
 				const fz80 = uni.upx2px(80)
 				ctx.setFontSize(fz80)
 				ctx.fillText("|", halfCw + fz200 + padding, cardHeight / 2)
+
+				const fz30 = uni.upx2px(30)
+				ctx.setFontSize(fz30)
+				await this.getWeather()
+
+				console.log(this.weather)
+				const icon = '../../static/weather/' + this.weather.weather[0].icon + '@2x.png'
+				const temp = this.weather.main.temp + "℃"
+				const des = this.weather.weather[0].description
+				console.log(icon, temp, des)
+				// ctx.drawImage(icon, halfCw + padding, padding, fz200, fz200)
+
+				ctx.fillText(temp, padding + padding + halfCw + fz200, cardHeight / 2)
+				ctx.fillText(des, padding + padding + halfCw + fz200, cardHeight / 2 +
+					padding + padding)
+
 
 			},
 			getLocation() {
@@ -384,7 +385,7 @@
 			getWeather() {
 				return new Promise((resolve, reject) => {
 					uni.request({
-						url: 'http://api.openweathermap.org/data/2.5/weather?lat=' +
+						url: 'https://api.openweathermap.org/data/2.5/weather?lat=' +
 							this
 							.lat +
 							'&lon=' + this.lon +
@@ -393,10 +394,11 @@
 						data: {},
 						success: (res) => {
 							this.weather = res.data
+							console.log('weather', res.data)
 							return resolve(res.data)
 						},
 						fail: (res) => {
-							console.log(res.errMsg)
+							console.log('weather', res.errMsg)
 							return reject(res)
 						}
 					})
