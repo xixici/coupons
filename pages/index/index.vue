@@ -55,8 +55,10 @@
 							this.lat = data.latitude
 							this.lon = data.longitude
 							uni.request({
-								url: 'http://api.openweathermap.org/data/2.5/weather?lat=' + this.lat +
-									'&lon=' + this.lon + '&appid=2253ad037b671940f70d2467be16ded2' +
+								url: 'http://api.openweathermap.org/data/2.5/weather?lat=' + this
+									.lat +
+									'&lon=' + this.lon +
+									'&appid=2253ad037b671940f70d2467be16ded2' +
 									'&lang=zh_cn' + '&units=metric',
 								data: {},
 								success: (res) => {
@@ -114,9 +116,9 @@
 					this.nickname = this.userInfo.nickName
 					this.location = this.userInfo.country + ' - ' + this.userInfo.province + ' - ' + this.userInfo.city
 				}
-				console.log(this.lunar)
 				const padding = uni.upx2px(34)
 				const cardHeight = uni.upx2px(170)
+				const lunarHeight = uni.upx2px(70)
 				const cw = this.canvasW - 2 * padding
 				const halfCw = (this.canvasW - 3 * padding) / 2
 
@@ -132,29 +134,30 @@
 				const textH = hp + iconW + 6
 				const vp = uni.upx2px(45)
 
-				const fz30 = uni.upx2px(100)
+				const fz50 = uni.upx2px(50)
+				const fz100 = uni.upx2px(100)
 				const fz200 = uni.upx2px(200)
-				ctx.setFontSize(fz30)
-				ctx.setTextBaseline('middle')
-				ctx.setFillStyle('#333333')
-
 				const dateY = padding
-				this.drawRoundRect(ctx, padding, dateY, halfCw, cardHeight, r, 2)
+				ctx.setFillStyle('#333333')
+				ctx.setTextBaseline('middle')
 
-				const dateText = this.month + '/' + this.day
-				const dateWidth = ctx.measureText(dateText).width
-				ctx.fillText(this.month + '/' + this.day, padding + (halfCw - dateWidth) / 2, cardHeight / 2 + padding)
+				ctx.setFontSize(fz100)
+				this.drawDate(ctx, padding, dateY, halfCw, cardHeight, r)
 				// console.log(this.weather)
 				// const weatherText = this.weather.main.temp + '℃' + this.weather.weather[0].description
 				// 'http://openweathermap.org/img/wn/10d@2x.png'
-				
-				this.drawRoundRect(ctx, padding + halfCw + padding, dateY, halfCw, cardHeight, r, 2)
-				ctx.fillText("17.99℃", padding + halfCw + padding, cardHeight / 2 + padding)
-				ctx.drawImage('../../static/weather/10d@2x.png', halfCw + padding, padding, fz200, fz200)
+
+				ctx.setFontSize(fz50)
+				this.drawWeather(ctx, padding, dateY, halfCw, cardHeight, r, fz200)
 
 				// draw card content
-				const cardY = cardHeight + padding + padding
-				this.drawRoundRectWithBorder(ctx, padding, cardY, cw, cardHeight, r, 2)
+				const lunarY = cardHeight + padding + padding
+				this.drawRoundRectWithBorder(ctx, padding, lunarY, cw, lunarHeight, r, 2, '#336699')
+				this.drawLunar(ctx, padding, lunarY, cw, lunarHeight)
+				
+				// draw card content
+				const cardY = cardHeight + padding + padding + padding + cardHeight
+				this.drawRoundRectWithBorder(ctx, padding, cardY, cw, cardHeight, r, 2, '#663399')
 				this.drawCard(ctx, padding, cardY, cw, cardHeight)
 				// draw avatar
 				console.log(this.year, this.month, this.day)
@@ -207,14 +210,21 @@
 				ctx.drawImage('../../static/position.png', hp, vp, iconW, iconW)
 				// #endif
 				ctx.fillText(this.location, textH, vp)
-
+			},
+			async drawLunar(ctx, x, y, w, h) {
+				let vp = y + uni.upx2px(20)
+				const hp = x + uni.upx2px(30)
+				ctx.setTextBaseline('top')
+				const fz30 = uni.upx2px(30)
+				ctx.setFontSize(fz30)
+				const textH = hp + fz30
+				ctx.fillText(this.lunar, textH, vp)
 			},
 			async drawHelloInfo(ctx, x, y, w) {
 				let vp = y - 56
 				const hp = x
 				ctx.setTextBaseline('top')
 				const fz30 = uni.upx2px(30)
-				ctx.setFillStyle('#333333')
 				ctx.setFontSize(fz30)
 				ctx.fillText('长按识别二维码', hp, vp)
 				vp += 26
@@ -256,12 +266,12 @@
 				// ctx.fillRect(x, y, bWidth, h)
 				ctx.restore()
 			},
-			drawRoundRectWithBorder(ctx, x, y, w, h, r, lineWidth) {
+			drawRoundRectWithBorder(ctx, x, y, w, h, r, lineWidth, color) {
 				ctx.save()
 				this._drawRoundRect(ctx, x, y, w, h, r)
 				ctx.clip()
 				// draw left border
-				ctx.fillStyle = this.company ? '#F37231' : '#333333'
+				ctx.fillStyle = color
 				const bWidth = uni.upx2px(12)
 				ctx.fillRect(x, y, bWidth, h)
 				ctx.restore()
@@ -330,6 +340,27 @@
 				var lunar = calendar.solar2lunar(this.year, this.month, this.day);
 				console.log(lunar)
 				return lunar.gzYear + '年 ' + lunar.IMonthCn + lunar.IDayCn + ' ' + lunar.ncWeek
+			},
+			drawDate(ctx, padding, dateY, halfCw, cardHeight, r) {
+				this.drawRoundRect(ctx, padding, dateY, halfCw, cardHeight, r, 2)
+				const dateText = this.month + '/' + this.day
+				const dateWidth = ctx.measureText(dateText).width
+				ctx.fillText(this.month + '/' + this.day, padding + (halfCw - dateWidth) / 2, cardHeight / 2 + padding)
+
+			},
+			drawWeather(ctx, padding, dateY, halfCw, cardHeight, r, fz200) {
+				this.drawRoundRect(ctx, padding + halfCw + padding, dateY, halfCw, cardHeight, r, 2)
+				ctx.drawImage('../../static/weather/' + this.weather.weather[0].icon +'@2x.png', halfCw + padding, padding, fz200, fz200)
+				
+				const fz30 = uni.upx2px(30)
+				ctx.setFontSize(fz30)
+				ctx.fillText("17.99℃", padding + halfCw + fz200, cardHeight / 2 )
+				ctx.fillText("小雨", padding + halfCw + fz200, cardHeight / 2 + padding + padding )
+
+				const fz80 = uni.upx2px(80)
+				ctx.setFontSize(fz80)
+				ctx.fillText("|", halfCw + fz200, cardHeight / 2 + padding)
+
 			}
 		}
 	}
