@@ -32,7 +32,7 @@
 			}
 		},
 		onLoad() {
-			this.weather = this.getWeather()
+			this.getLocation()
 			this.userInfo = getApp().globalData.userInfo
 			this.lunar = this.getLunar()
 			this.canvasW = uni.getSystemInfoSync().windowWidth
@@ -44,36 +44,6 @@
 			onGotUserInfo(e) {
 				this.userInfo = e.detail.userInfo
 				uni.setStorageSync('userInfo', e.detail.userInfo);
-			},
-
-			async getWeather() {
-				uni.getLocation({
-					type: 'gcj02',
-					geocode: true, //必写项
-					success: (data) => {
-						if (data) {
-							this.lat = data.latitude
-							this.lon = data.longitude
-							uni.request({
-								url: 'http://api.openweathermap.org/data/2.5/weather?lat=' + this
-									.lat +
-									'&lon=' + this.lon +
-									'&appid=2253ad037b671940f70d2467be16ded2' +
-									'&lang=zh_cn' + '&units=metric',
-								data: {},
-								success: (res) => {
-									this.weather = res.data
-									console.log(this.weather)
-									console.log(this.weather.main)
-									return res.data
-								},
-								fail: (res) => {
-									console.log(res.errMsg)
-								}
-							})
-						}
-					}
-				})
 			},
 			toSaveImage() {
 				if (!this.finished) {
@@ -150,27 +120,29 @@
 				ctx.setFontSize(fz50)
 				this.drawWeather(ctx, padding, dateY, halfCw, cardHeight, r, fz200)
 
-				// draw card content
+				// draw lunar content
 				const lunarY = cardHeight + padding + padding
 				this.drawRoundRectWithBorder(ctx, padding, lunarY, cw, lunarHeight, r, 2, '#336699')
 				this.drawLunar(ctx, padding, lunarY, cw, lunarHeight)
+
+				// draw song content
+				const songY = cardHeight + padding + padding + lunarHeight + padding
+				this.drawRoundRectWithBorder(ctx, padding, songY, cw, cardHeight, r, 2, '#993366')
+				this.drawCard(ctx, padding, songY, cw, cardHeight)
 				
 				// draw card content
-				const cardY = cardHeight + padding + padding + padding + cardHeight
+				const cardY = this.canvasH - cardHeight - cardHeight
 				this.drawRoundRectWithBorder(ctx, padding, cardY, cw, cardHeight, r, 2, '#663399')
 				this.drawCard(ctx, padding, cardY, cw, cardHeight)
-				// draw avatar
-				console.log(this.year, this.month, this.day)
-				const av = uni.upx2px(128)
-				console.log(this.userInfo)
-				const hi = await this.downloadImage(this.avatar)
-				// if (hi.tempFilePath) {
-				// 	const x = this.canvasW - padding - uni.upx2px(40) - av
-				// 	const y = padding + uni.upx2px(40)
-				// 	this.drawRoundRectAvatar(ctx, x, y, av, av, r, hi.tempFilePath)
-				// }
+				
 				// draw hello info
 				this.drawHelloInfo(ctx, padding, this.canvasH, cw)
+				// draw avatar
+				const av = uni.upx2px(128)
+				const hi = await this.downloadImage(this.avatar)
+				if (hi.tempFilePath) {
+					this.drawRoundRectAvatar(ctx, cw - padding -padding, cardY + padding, av, av, r, hi.tempFilePath)
+				}
 				// draw qr code
 				// if (this.mpWxQr) {
 				// 	const hello = await this.downloadImage(this.mpWxQr)
@@ -210,6 +182,15 @@
 				ctx.drawImage('../../static/position.png', hp, vp, iconW, iconW)
 				// #endif
 				ctx.fillText(this.location, textH, vp)
+			},
+			async drawSong(ctx, x, y, w, h) {
+				let vp = y + uni.upx2px(20)
+				const hp = x + uni.upx2px(30)
+				ctx.setTextBaseline('top')
+				const fz30 = uni.upx2px(30)
+				ctx.setFontSize(fz30)
+				const textH = hp + fz30
+				ctx.fillText(this.lunar, textH, vp)
 			},
 			async drawLunar(ctx, x, y, w, h) {
 				let vp = y + uni.upx2px(20)
@@ -341,28 +322,66 @@
 				console.log(lunar)
 				return lunar.gzYear + '年 ' + lunar.IMonthCn + lunar.IDayCn + ' ' + lunar.ncWeek
 			},
-			drawDate(ctx, padding, dateY, halfCw, cardHeight, r) {
+			async drawDate(ctx, padding, dateY, halfCw, cardHeight, r) {
+
 				this.drawRoundRect(ctx, padding, dateY, halfCw, cardHeight, r, 2)
 				const dateText = this.month + '/' + this.day
 				const dateWidth = ctx.measureText(dateText).width
 				ctx.fillText(this.month + '/' + this.day, padding + (halfCw - dateWidth) / 2, cardHeight / 2 + padding)
 
 			},
-			drawWeather(ctx, padding, dateY, halfCw, cardHeight, r, fz200) {
+			async drawWeather(ctx, padding, dateY, halfCw, cardHeight, r, fz200) {
+				await this.getWeather()
 				this.drawRoundRect(ctx, padding + halfCw + padding, dateY, halfCw, cardHeight, r, 2)
-				ctx.drawImage('../../static/weather/' + this.weather.weather[0].icon +'@2x.png', halfCw + padding, padding, fz200, fz200)
-				
+				console.log(this.weather)
+				ctx.drawImage('../../static/weather/' + this.weather.weather[0].icon + '@2x.png', halfCw + padding,
+					padding, fz200, fz200)
+
 				const fz30 = uni.upx2px(30)
 				ctx.setFontSize(fz30)
-				ctx.fillText("17.99℃", padding + halfCw + fz200, cardHeight / 2 )
-				ctx.fillText("小雨", padding + halfCw + fz200, cardHeight / 2 + padding + padding )
+				ctx.fillText(this.weather.main.temp + "℃", padding + padding + halfCw + fz200, cardHeight / 2)
+				ctx.fillText(this.weather.weather[0].description, padding + padding + halfCw + fz200, cardHeight / 2 +
+					padding + padding)
 
 				const fz80 = uni.upx2px(80)
 				ctx.setFontSize(fz80)
-				ctx.fillText("|", halfCw + fz200, cardHeight / 2 + padding)
+				ctx.fillText("|", halfCw + fz200 + padding, cardHeight / 2)
 
+			},
+			getLocation() {
+				uni.getLocation({
+					type: 'gcj02',
+					geocode: true, //必写项
+					success: (data) => {
+						if (data) {
+							this.lat = data.latitude
+							this.lon = data.longitude
+						}
+					}
+				})
+			},
+			getWeather() {
+				return new Promise((resolve, reject) => {
+					uni.request({
+						url: 'http://api.openweathermap.org/data/2.5/weather?lat=' +
+							this
+							.lat +
+							'&lon=' + this.lon +
+							'&appid=2253ad037b671940f70d2467be16ded2' +
+							'&lang=zh_cn' + '&units=metric',
+						data: {},
+						success: (res) => {
+							this.weather = res.data
+							return resolve(res.data)
+						},
+						fail: (res) => {
+							console.log(res.errMsg)
+							return reject(res)
+						}
+					})
+				})
 			}
-		}
+		},
 	}
 </script>
 
