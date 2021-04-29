@@ -34,7 +34,7 @@
 			this.lunar = this.getLunar()
 			this.canvasW = uni.getSystemInfoSync().windowWidth
 			this.canvasH = this.calculateCanvasHeight()
-			this.toDrawCanvas()
+			this.toDrawCanvas(this.nickname, this.location, this.avatar)
 		},
 		methods: {
 			/*登录 */
@@ -54,7 +54,7 @@
 						self.nickname = user.userInfo.nickName
 						self.location = user.userInfo.country + ' - ' + user.userInfo.province + ' - ' + user
 							.userInfo.city
-						self.toDrawCanvas()
+						self.toDrawCanvas(self.nickname, self.location, self.avatar)
 					}
 				})
 			},
@@ -93,13 +93,7 @@
 					}
 				})
 			},
-			async toDrawCanvas() {
-				console.log(111, this)
-				if (this.userInfo.avatarUrl) {
-					this.avatar = this.userInfo.avatarUrl
-					this.nickname = this.userInfo.nickName
-					this.location = this.userInfo.country + ' - ' + this.userInfo.province + ' - ' + this.userInfo.city
-				}
+			async toDrawCanvas(nickname, location, avatar) {
 				const padding = uni.upx2px(34)
 				const cardHeight = uni.upx2px(170)
 				const lunarHeight = uni.upx2px(70)
@@ -146,13 +140,13 @@
 				// draw card content
 				const cardY = this.canvasH - cardHeight - cardHeight
 				this.drawRoundRectWithBorder(ctx, padding, cardY, cw, cardHeight, r, 2, '#663399')
-				this.drawCard(ctx, padding, cardY, cw, cardHeight)
+				this.drawCard(ctx, padding, cardY, cw, cardHeight, nickname, location, avatar)
 
 				// draw hello info
 				this.drawHelloInfo(ctx, padding, this.canvasH, cw)
 				// draw avatar
 				const av = uni.upx2px(128)
-				const hi = await this.downloadImage(this.avatar)
+				const hi = await this.downloadImage(avatar)
 				if (hi.tempFilePath) {
 					this.drawRoundRectAvatar(ctx, cw - padding - padding - padding, cardY + padding, av, av, r, hi
 						.tempFilePath)
@@ -170,7 +164,7 @@
 				ctx.draw()
 				this.finished = true
 			},
-			async drawCard(ctx, x, y, w, h) {
+			async drawCard(ctx, x, y, w, h, nickname, location, avatar) {
 				let vp = y + uni.upx2px(45)
 				const hp = x + uni.upx2px(52)
 				ctx.setTextBaseline('top')
@@ -186,7 +180,7 @@
 				ctx.drawImage('../../static/Mouse-Pointer.png', hp, vp, iconW, iconW)
 				// #endif
 				ctx.setFillStyle('#333333')
-				ctx.fillText(this.nickname, textH, vp)
+				ctx.fillText(nickname, textH, vp)
 
 				vp += 30
 				// #ifdef APP-PLUS
@@ -195,7 +189,7 @@
 				// #ifndef APP-PLUS
 				ctx.drawImage('../../static/position.png', hp, vp, iconW, iconW)
 				// #endif
-				ctx.fillText(this.location, textH, vp)
+				ctx.fillText(location, textH, vp)
 			},
 			async drawSong(ctx, x, y, w, h) {
 				let vp = y + uni.upx2px(20)
@@ -332,7 +326,6 @@
 				this.month = date.getMonth() + 1
 				this.day = date.getDate();
 				var lunar = calendar.solar2lunar(this.year, this.month, this.day);
-				console.log(lunar)
 				return lunar.gzYear + '年 ' + lunar.IMonthCn + lunar.IDayCn + ' ' + lunar.ncWeek
 			},
 			async drawDate(ctx, padding, dateY, halfCw, cardHeight, r) {
@@ -344,25 +337,21 @@
 
 			},
 			async drawWeather(ctx, padding, dateY, halfCw, cardHeight, r, fz200) {
-
-				console.log(222222, this.weather)
 				this.drawRoundRect(ctx, padding + halfCw + padding, dateY, halfCw, cardHeight, r, 2)
-
 
 				const fz80 = uni.upx2px(80)
 				ctx.setFontSize(fz80)
-				ctx.fillText("|", halfCw + fz200 + padding, cardHeight / 2)
+				ctx.fillText("|", halfCw + fz200 + padding, cardHeight / 2 + padding)
 
 				const fz30 = uni.upx2px(30)
 				ctx.setFontSize(fz30)
 				await this.getWeather()
 
-				console.log(this.weather)
 				const icon = '../../static/weather/' + this.weather.weather[0].icon + '@2x.png'
 				const temp = this.weather.main.temp + "℃"
 				const des = this.weather.weather[0].description
-				console.log(icon, temp, des)
-				// ctx.drawImage(icon, halfCw + padding, padding, fz200, fz200)
+
+				ctx.drawImage(icon, halfCw + padding, padding, fz200, fz200)
 
 				ctx.fillText(temp, padding + padding + halfCw + fz200, cardHeight / 2)
 				ctx.fillText(des, padding + padding + halfCw + fz200, cardHeight / 2 +
@@ -394,11 +383,9 @@
 						data: {},
 						success: (res) => {
 							this.weather = res.data
-							console.log('weather', res.data)
 							return resolve(res.data)
 						},
 						fail: (res) => {
-							console.log('weather', res.errMsg)
 							return reject(res)
 						}
 					})
