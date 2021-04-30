@@ -25,10 +25,14 @@
 				nickname: "日历大师",
 				avatar: "https://github.com/xixici/xixici.github.io/blob/master/uploads/wechat-qcode.gif",
 				location: "上海",
+				city: "上海",
+				lat: 31.231706,
+				lon: 121.472644,
 				finished: false
 			}
 		},
 		onLoad() {
+			this.getLocation()
 			this.userInfo = getApp().globalData.userInfo
 			this.lunar = this.getLunar()
 			this.canvasW = uni.getSystemInfoSync().windowWidth
@@ -344,24 +348,27 @@
 
 				const fz30 = uni.upx2px(30)
 				ctx.setFontSize(fz30)
+				console.log("drawWeather lat: ", this.lat, " lon:", this.lon)
+
 				await this.getWeather(this.lat, this.lon)
 				const icon = '../../static/weather/' + this.weather.weather[0].icon + '@2x.png'
 				const temp = this.weather.main.temp + "℃"
 				const des = this.weather.weather[0].description
+				const city = this.weather.name
 				console.log(icon)
 
 				ctx.drawImage(icon, halfCw + padding, padding, fz200, fz200)
 
-				ctx.fillText(temp, padding + padding + halfCw + fz200, cardHeight / 2)
-				ctx.fillText(des, padding + padding + halfCw + fz200, cardHeight / 2 +
-					padding + padding)
+				ctx.fillText(temp, padding + padding + halfCw + fz200, cardHeight / 2 - padding)
+				ctx.fillText(des, padding + padding + halfCw + fz200, cardHeight / 2)
+				ctx.fillText(city, padding + padding + halfCw + fz200, cardHeight / 2 +
+					padding)
 
 
 			},
 			async getWeather(lat, lon) {
-				await this.getLocation()
-				
-					console.log("getWeather lat: ", lat, " lon:", lon)
+
+				console.log("getWeather lat: ", lat, " lon:", lon)
 				return new Promise((resolve, reject) => {
 					uni.request({
 						url: 'https://api.openweathermap.org/data/2.5/weather?lat=' +
@@ -371,7 +378,9 @@
 							'&lang=zh_cn' + '&units=metric',
 						data: {},
 						success: (res) => {
+							console.log(res)
 							this.weather = res.data
+							console.log(this.weather)
 							return resolve(res.data)
 						},
 						fail: (res) => {
@@ -380,24 +389,24 @@
 					})
 				})
 			},
-			getLocation() {
-				return new Promise((resolve, reject) => {
-					uni.getLocation({
-						type: 'wgs84',
-						geocode: true, //必写项
-						success: (data) => {
-							if (data) {
-								this.lat = data.latitude
-								this.lon = data.longitude
-							}
-						},
-						fail: (data) => {
-							this.lat = 121.472644
-							this.lon = 31.231706
+			async getLocation() {
+				uni.getLocation({
+					type: 'wgs84',
+					geocode: true, //必写项
+					success: (data) => {
+						if (data) {
+							this.lat = data.latitude
+							this.lon = data.longitude
+							console.log("getLocation lat: ", this.lat, " lon:", this.lon)
 
-							console.log("lat: ", this.lat, " lon:", this.lon)
 						}
-					})
+					},
+					fail: (data) => {
+						this.lat = 31.231706
+						this.lon = 121.472644
+
+						console.log("getLocation lat: ", this.lat, " lon:", this.lon)
+					}
 				})
 			}
 		},
