@@ -60,7 +60,8 @@
 						self.nickname = user.userInfo.nickName
 						self.location = user.userInfo.country + ' - ' + user.userInfo.province + ' - ' + user
 							.userInfo.city
-						self.toDrawCanvas(self.nickname, self.location, self.avatar)
+						console.log(self)
+						self.toDrawCanvas(self.nickname, self.location, self.avatar, self.lat, self.lon)
 					}
 				})
 			},
@@ -99,7 +100,7 @@
 					}
 				})
 			},
-			async toDrawCanvas(nickname, location, avatar) {
+			async toDrawCanvas(nickname, location, avatar, lat, lon) {
 				const padding = uni.upx2px(34)
 				const cardHeight = uni.upx2px(170)
 				const lunarHeight = uni.upx2px(70)
@@ -125,9 +126,17 @@
 				ctx.setFillStyle('#333333')
 				ctx.setTextBaseline('middle')
 
+
+				await this.getWeather(lat, lon)
+				console.log(lat, lon, this.weather)
+				this.icon = '../../static/weather/' + this.weather.weather[0].icon + '@2x.png'
+				this.temp = this.weather.main.temp + "℃"
+				this.des = this.weather.weather[0].description
+				this.city = this.weather.name.split(' ')[0]
+				console.log(lat, lon, this.city)
 				// draw lunar content
 				ctx.setFontSize(fz50)
-				this.drawWeather(ctx, padding, dateY, halfCw, cardHeight, r, fz200)
+				this.drawWeather(ctx, padding, dateY, halfCw, cardHeight, r, fz200, this.icon, this.temp, this.des, this.city)
 
 				// draw date content
 				ctx.setFontSize(fz100)
@@ -179,22 +188,15 @@
 
 				const iconW = uni.upx2px(30)
 				const textH = hp + iconW + 6
-				// #ifdef APP-PLUS
+				
 				ctx.drawImage('../../static/Mouse-Pointer.png', hp, vp + 3, iconW, iconW)
-				// #endif
-				// #ifndef APP-PLUS
-				ctx.drawImage('../../static/Mouse-Pointer.png', hp, vp, iconW, iconW)
-				// #endif
+				
 				ctx.setFillStyle('#333333')
 				ctx.fillText(nickname, textH, vp)
 
 				vp += 30
-				// #ifdef APP-PLUS
 				ctx.drawImage('../../static/position.png', hp, vp + 3, iconW, iconW)
-				// #endif
-				// #ifndef APP-PLUS
-				ctx.drawImage('../../static/position.png', hp, vp, iconW, iconW)
-				// #endif
+				
 				ctx.fillText(location, textH, vp)
 			},
 			async drawSong(ctx, x, y, w, h) {
@@ -335,44 +337,24 @@
 				return lunar.gzYear + '年 ' + lunar.IMonthCn + lunar.IDayCn + ' ' + lunar.ncWeek
 			},
 			async drawDate(ctx, padding, dateY, halfCw, cardHeight, r) {
-
 				this.drawRoundRect(ctx, padding, dateY, halfCw, cardHeight, r, 2)
 				const dateText = this.month + '/' + this.day
 				const dateWidth = ctx.measureText(dateText).width
 				ctx.fillText(this.month + '/' + this.day, padding + (halfCw - dateWidth) / 2, cardHeight / 2 + padding)
 
 			},
-			async drawWeather(ctx, padding, dateY, halfCw, cardHeight, r, fz200) {
+			async drawWeather(ctx, padding, dateY, halfCw, cardHeight, r, fz200, icon, temp, des, city) {
 				this.drawRoundRect(ctx, padding + halfCw + padding, dateY, halfCw, cardHeight, r, 2)
-
-				const fz80 = uni.upx2px(80)
-				ctx.setFontSize(fz80)
-				ctx.fillText("|", halfCw + fz200 + padding, cardHeight / 2 + padding)
-
 				const fz30 = uni.upx2px(30)
 				ctx.setFontSize(fz30)
-				console.log("drawWeather lat: ", this.lat, " lon:", this.lon)
 
-				await this.getWeather(this.lat, this.lon)
-				this.icon = '../../static/weather/' + this.weather.weather[0].icon + '@2x.png'
-				this.temp = this.weather.main.temp + "℃"
-				this.des = this.weather.weather[0].description
-				this.city = this.weather.name
-				console.log(this.icon, this.temp, this.des, this.city)
-				ctx.drawImage(this.icon, halfCw + padding, padding, fz200, fz200)
-
-				console.log(this.icon, this.temp, this.des, this.city)
-				ctx.fillText(this.temp, padding + padding + halfCw + fz200, cardHeight / 2 - padding)
-				ctx.fillText(this.des, padding + padding + halfCw + fz200, cardHeight / 2)
-				ctx.fillText(this.city, padding + padding + halfCw + fz200, cardHeight / 2 +
+				ctx.drawImage(icon, halfCw + padding + 8, padding - 2, fz200, fz200)
+				ctx.fillText(temp, padding + halfCw + fz200, cardHeight / 2 - 2)
+				ctx.fillText(des, padding + halfCw + fz200, cardHeight / 2 - 2 + padding)
+				ctx.fillText(city, padding + halfCw + fz200, cardHeight / 2 - 2 + padding +
 					padding)
-
-				console.log(this.icon, this.temp, this.des, this.city)
-
 			},
 			async getWeather(lat, lon) {
-
-				console.log("getWeather lat: ", lat, " lon:", lon)
 				return new Promise((resolve, reject) => {
 					uni.request({
 						url: 'https://api.openweathermap.org/data/2.5/weather?lat=' +
@@ -382,9 +364,7 @@
 							'&lang=zh_cn' + '&units=metric',
 						data: {},
 						success: (res) => {
-							console.log(res)
 							this.weather = res.data
-							console.log(this.weather)
 							return resolve(res.data)
 						},
 						fail: (res) => {
@@ -401,15 +381,11 @@
 						if (data) {
 							this.lat = data.latitude
 							this.lon = data.longitude
-							console.log("getLocation lat: ", this.lat, " lon:", this.lon)
-
 						}
 					},
 					fail: (data) => {
-						this.lat = 31.231706
-						this.lon = 121.472644
-
-						console.log("getLocation lat: ", this.lat, " lon:", this.lon)
+						this.lat = 31.2318
+						this.lon = 121.4727
 					}
 				})
 			}
