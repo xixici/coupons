@@ -167,15 +167,15 @@
 						.tempFilePath)
 				}
 				// draw qr code
-				// if (this.mpWxQr) {
-				// 	const hello = await this.downloadImage(this.mpWxQr)
-				// 	const padding = uni.upx2px(34)
-				// 	const av = uni.upx2px(180)
-				// 	const totalH = this.calculateCanvasHeight()
-				// 	if (hello.tempFilePath) {
-				// 		ctx.drawImage(hello.tempFilePath, this.canvasW - padding - av, totalH - padding - av, av, av)
-				// 	}
-				// }
+				if (this.mpWxQr) {
+					const hello = await this.downloadImage(this.mpWxQr)
+					const padding = uni.upx2px(34)
+					const av = uni.upx2px(180)
+					const totalH = this.calculateCanvasHeight()
+					if (hello.tempFilePath) {
+						ctx.drawImage(hello.tempFilePath, this.canvasW - padding - av, totalH - padding - av, av, av)
+					}
+				}
 				ctx.draw()
 				this.finished = true
 			},
