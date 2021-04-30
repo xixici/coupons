@@ -9,6 +9,10 @@ var home = {
 		let coupons = db.collection('coupon').orderBy("sort", "desc").get();
 		return coupons
 	},
+	song: () => {
+		let song = db.collection('song').orderBy("sort", "desc").get();
+		return song
+	},
 }
 
 module.exports = home;

@@ -11,6 +11,6 @@
   "license": "ISC",
   "dependencies": {
     "response": "file:../common/response",
-	"utils": "file:../common/utils"
+    "utils": "file:../common/utils"
   }
 }

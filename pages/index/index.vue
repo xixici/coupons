@@ -35,6 +35,7 @@
 			}
 		},
 		onLoad() {
+			this.getSong()
 			this.getLocation()
 			this.userInfo = getApp().globalData.userInfo
 			this.lunar = this.getLunar()
@@ -136,7 +137,8 @@
 				console.log(lat, lon, this.city)
 				// draw lunar content
 				ctx.setFontSize(fz50)
-				this.drawWeather(ctx, padding, dateY, halfCw, cardHeight, r, fz200, this.icon, this.temp, this.des, this.city)
+				this.drawWeather(ctx, padding, dateY, halfCw, cardHeight, r, fz200, this.icon, this.temp, this.des,
+					this.city)
 
 				// draw date content
 				ctx.setFontSize(fz100)
@@ -188,15 +190,15 @@
 
 				const iconW = uni.upx2px(30)
 				const textH = hp + iconW + 6
-				
+
 				ctx.drawImage('../../static/Mouse-Pointer.png', hp, vp + 3, iconW, iconW)
-				
+
 				ctx.setFillStyle('#333333')
 				ctx.fillText(nickname, textH, vp)
 
 				vp += 30
 				ctx.drawImage('../../static/position.png', hp, vp + 3, iconW, iconW)
-				
+
 				ctx.fillText(location, textH, vp)
 			},
 			async drawSong(ctx, x, y, w, h) {
@@ -388,6 +390,15 @@
 						this.lon = 121.4727
 					}
 				})
+			},
+			getSong() {
+				uni.request({
+					url: getApp().globalData.api.home,
+					success: (res) => {
+						this.song = res.data.data.song
+						console.log(this.song)
+					}
+				});
 			}
 		},
 	}
