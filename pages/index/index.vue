@@ -28,6 +28,9 @@
 				city: "上海",
 				lat: 31.231706,
 				lon: 121.472644,
+				icon: '../../static/weather/01d@2x.png',
+				temp: "18℃",
+				des: "晴",
 				finished: false
 			}
 		},
@@ -351,19 +354,20 @@
 				console.log("drawWeather lat: ", this.lat, " lon:", this.lon)
 
 				await this.getWeather(this.lat, this.lon)
-				const icon = '../../static/weather/' + this.weather.weather[0].icon + '@2x.png'
-				const temp = this.weather.main.temp + "℃"
-				const des = this.weather.weather[0].description
-				const city = this.weather.name
-				console.log(icon)
+				this.icon = '../../static/weather/' + this.weather.weather[0].icon + '@2x.png'
+				this.temp = this.weather.main.temp + "℃"
+				this.des = this.weather.weather[0].description
+				this.city = this.weather.name
+				console.log(this.icon, this.temp, this.des, this.city)
+				ctx.drawImage(this.icon, halfCw + padding, padding, fz200, fz200)
 
-				ctx.drawImage(icon, halfCw + padding, padding, fz200, fz200)
-
-				ctx.fillText(temp, padding + padding + halfCw + fz200, cardHeight / 2 - padding)
-				ctx.fillText(des, padding + padding + halfCw + fz200, cardHeight / 2)
-				ctx.fillText(city, padding + padding + halfCw + fz200, cardHeight / 2 +
+				console.log(this.icon, this.temp, this.des, this.city)
+				ctx.fillText(this.temp, padding + padding + halfCw + fz200, cardHeight / 2 - padding)
+				ctx.fillText(this.des, padding + padding + halfCw + fz200, cardHeight / 2)
+				ctx.fillText(this.city, padding + padding + halfCw + fz200, cardHeight / 2 +
 					padding)
 
+				console.log(this.icon, this.temp, this.des, this.city)
 
 			},
 			async getWeather(lat, lon) {
@@ -389,7 +393,7 @@
 					})
 				})
 			},
-			async getLocation() {
+			getLocation() {
 				uni.getLocation({
 					type: 'wgs84',
 					geocode: true, //必写项
