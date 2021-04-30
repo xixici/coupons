@@ -29,7 +29,6 @@
 			}
 		},
 		onLoad() {
-			this.getLocation()
 			this.userInfo = getApp().globalData.userInfo
 			this.lunar = this.getLunar()
 			this.canvasW = uni.getSystemInfoSync().windowWidth
@@ -345,11 +344,11 @@
 
 				const fz30 = uni.upx2px(30)
 				ctx.setFontSize(fz30)
-				await this.getWeather()
-
+				await this.getWeather(this.lat, this.lon)
 				const icon = '../../static/weather/' + this.weather.weather[0].icon + '@2x.png'
 				const temp = this.weather.main.temp + "℃"
 				const des = this.weather.weather[0].description
+				console.log(icon)
 
 				ctx.drawImage(icon, halfCw + padding, padding, fz200, fz200)
 
@@ -359,25 +358,15 @@
 
 
 			},
-			getLocation() {
-				uni.getLocation({
-					type: 'gcj02',
-					geocode: true, //必写项
-					success: (data) => {
-						if (data) {
-							this.lat = data.latitude
-							this.lon = data.longitude
-						}
-					}
-				})
-			},
-			getWeather() {
+			async getWeather(lat, lon) {
+				await this.getLocation()
+				
+					console.log("getWeather lat: ", lat, " lon:", lon)
 				return new Promise((resolve, reject) => {
 					uni.request({
 						url: 'https://api.openweathermap.org/data/2.5/weather?lat=' +
-							this
-							.lat +
-							'&lon=' + this.lon +
+							lat +
+							'&lon=' + lon +
 							'&appid=2253ad037b671940f70d2467be16ded2' +
 							'&lang=zh_cn' + '&units=metric',
 						data: {},
@@ -387,6 +376,26 @@
 						},
 						fail: (res) => {
 							return reject(res)
+						}
+					})
+				})
+			},
+			getLocation() {
+				return new Promise((resolve, reject) => {
+					uni.getLocation({
+						type: 'wgs84',
+						geocode: true, //必写项
+						success: (data) => {
+							if (data) {
+								this.lat = data.latitude
+								this.lon = data.longitude
+							}
+						},
+						fail: (data) => {
+							this.lat = 121.472644
+							this.lon = 31.231706
+
+							console.log("lat: ", this.lat, " lon:", this.lon)
 						}
 					})
 				})
