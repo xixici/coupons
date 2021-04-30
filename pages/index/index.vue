@@ -35,7 +35,7 @@
 			}
 		},
 		onLoad() {
-			this.getSong()
+			// this.getSong()
 			this.getLocation()
 			this.userInfo = getApp().globalData.userInfo
 			this.lunar = this.getLunar()
@@ -391,15 +391,17 @@
 					}
 				})
 			},
-			getSong() {
-				uni.request({
-					url: getApp().globalData.api.home,
-					success: (res) => {
-						this.song = res.data.data.song
-						console.log(this.song)
-					}
-				});
-			}
+			// getSong() {
+			// 	uniCloud.callFunction({
+			// 		name: 'song',
+			// 	})({
+			// 		url: getApp().globalData.api.home,
+			// 		success: (res) => {
+			// 			this.song = res.data.data.song
+			// 			console.log(this.song)
+			// 		}
+			// 	});
+			// }
 		},
 	}
 </script>
