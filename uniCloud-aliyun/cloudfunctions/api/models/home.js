@@ -1,4 +1,6 @@
-const db = uniCloud.database();
+const db = uniCloud.database({
+  spaceId: '83f39ab3-e69c-48b0-9317-ffcf4be15cb7'
+});
 
 var home = {
     tabs: () => {
@@ -10,7 +12,7 @@ var home = {
 		return coupons
 	},
 	song: () => {
-		let song = db.collection('song').orderBy("sort", "desc").get();
+		let song = db.collection('song').get();
 		return song
 	},
 }
