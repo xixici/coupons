@@ -171,6 +171,7 @@
 				}
 				// draw qr code
 				if (this.mpWxQr) {
+					console.log(this.mpWxQr)
 					const hello = await this.downloadImage(this.mpWxQr)
 					const padding = uni.upx2px(34)
 					const av = uni.upx2px(180)
