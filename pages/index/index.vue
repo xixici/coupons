@@ -31,6 +31,7 @@
 				icon: '../../static/weather/01d@2x.png',
 				temp: "18℃",
 				des: "晴",
+				mpWxQr: '../../static/qr-code.png'
 				finished: false
 			}
 		},
